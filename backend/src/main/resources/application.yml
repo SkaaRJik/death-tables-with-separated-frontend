@@ -1,0 +1,36 @@
+server:
+  port: 9000
+spring:
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://localhost:5432/death_tables
+    username: postgres
+    password: root
+    driverClassName: org.postgresql.Driver
+  jackson:
+      serialization:
+        FAIL_ON_EMPTY_BEANS: false
+  jpa:
+    generate-ddl: true
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+      database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+# App Properties
+app:
+  jwt:
+    Secret: SECRET
+    Access_Expiration: 86400
+    Refresh_Expiration: 864000
+    prefix:
+      access: 'Bearer:'
+      refresh: 'Refresh:'
+    Header: Authorization
+  default:
+    avatar: F:\JavaProjects\deathTables\src\main\resources\static\assets\img\default-avatar.png
+
+loger:
+  level:
+    root: DEBUG
