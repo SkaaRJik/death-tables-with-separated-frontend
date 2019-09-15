@@ -4,13 +4,16 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
+import ru.filippov.neatvue.domain.User;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -20,61 +23,62 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class TokenAuthenticationHelper {
 
-
-
-
-
     private static String JWT_SECRET;
-
 
     private static long JWT_ACCESS_EXPIRATION;
 
-
     private static long JWT_REFRESH_EXPIRATION;
-
 
     private static String JWT_ACCESS_PREFIX;
 
     private static String JWT_REFRESH_PREFIX;
 
 
-    private static String JWT_HEADER;
+    private static String JWT_ACCESS_HEADER;
 
-    @Value("${app.jwt.Secret}")
+    private static String JWT_REFRESH_HEADER;
+
+    @Value("${app.jwt.secret}")
     public  void setJwtSecret(String jwtSecret) {
         JWT_SECRET = jwtSecret;
     }
-    @Value("${app.jwt.Access_Expiration}")
+    @Value("${app.jwt.token.access.expiration}")
     public  void setJwtAccessExpiration(long jwtAccessExpiration) {
         JWT_ACCESS_EXPIRATION = jwtAccessExpiration;
     }
-    @Value("${app.jwt.Refresh_Expiration}")
+    @Value("${app.jwt.token.refresh.expiration}")
     public  void setJwtRefreshExpiration(long jwtRefreshExpiration) {
         JWT_REFRESH_EXPIRATION = jwtRefreshExpiration;
     }
-    @Value("${app.jwt.prefix.access}")
+    @Value("${app.jwt.token.access.prefix}")
     public  void setJwtPrefix(String jwtPrefix) {
         JWT_ACCESS_PREFIX = jwtPrefix;
     }
-    @Value("${app.jwt.Header}")
-    public  void setJwtHeader(String jwtHeader) {
-        JWT_HEADER = jwtHeader;
+    @Value("${app.jwt.token.refresh.prefix}")
+    public void setJwtRefreshPrefix(String jwtPrefix) {
+        JWT_REFRESH_PREFIX = jwtPrefix;
+    }
+    @Value("${app.jwt.token.access.header}")
+    public  void setJwtAccessHeader(String jwtHeader) {
+        JWT_ACCESS_HEADER = jwtHeader;
+    }
+    @Value("${app.jwt.token.refresh.header}")
+    public  void setJwtRefreshHeader(String jwtHeader) {
+        JWT_REFRESH_HEADER = jwtHeader;
     }
 
-    @Value("${app.jwt.prefix.refresh}")
 
-    public void setJwtRefreshPrefix(String jwtRefreshPrefix) {
-        JWT_REFRESH_PREFIX = jwtRefreshPrefix;
-    }
 
-    enum TYPE {
+    public enum TYPE {
         REFRESH_TOKEN,
         ACCESS_TOKEN
     }
-    private TokenAuthenticationHelper() {    }
+
+    private TokenAuthenticationHelper() {}
 
 
 
@@ -83,18 +87,18 @@ public class TokenAuthenticationHelper {
 
 
 
-    static String addAuthentication(HttpServletResponse res, Authentication auth, TYPE type) {
+    public static String addTokenInsideCookie(HttpServletResponse res, AuthData auth, TYPE type) {
         if(type == TYPE.REFRESH_TOKEN) {
-           return addAuthentication(res, auth, type, JWT_REFRESH_EXPIRATION);
+           return addTokenInsideCookie(res, auth, type, JWT_REFRESH_EXPIRATION);
         } else if(type == TYPE.ACCESS_TOKEN) {
-            return addAuthentication(res, auth, type, JWT_ACCESS_EXPIRATION);
+            return addTokenInsideCookie(res, auth, type, JWT_ACCESS_EXPIRATION);
         }
         return null;
     }
 
-    static String addAuthentication(HttpServletResponse res, Authentication auth, TYPE type, long tokenExpiration) {
+    public static String addTokenInsideCookie(HttpServletResponse res, AuthData auth, TYPE type, long tokenExpiration) {
 
-        String jwt = getnerateToken(auth, type, tokenExpiration);
+        String jwt = generateToken(auth, type, tokenExpiration);
 
         String prefix = type == TYPE.ACCESS_TOKEN ? JWT_ACCESS_PREFIX : JWT_REFRESH_PREFIX;
 
@@ -105,40 +109,41 @@ public class TokenAuthenticationHelper {
         return jwt;
     }
 
-    public static String getnerateToken(Authentication auth, TYPE type, long tokenExpiration) {
+
+    public static String generateToken(AuthData auth, TYPE type, long tokenExpiration) {
         String authorities = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
         JwtBuilder jwtBuilder = Jwts.builder()
-                .setSubject(auth.getName());
+                .setSubject(auth.getUsername());
 
-
+        String prefix = "";
         if(type== TYPE.ACCESS_TOKEN) {
             jwtBuilder.claim("authorities", authorities);
+            prefix = JWT_ACCESS_PREFIX;
 
         } else if(type== TYPE.REFRESH_TOKEN){
             jwtBuilder.claim("authorities", authorities);
+            prefix=JWT_REFRESH_PREFIX;
         }
 
         jwtBuilder.setExpiration(new Date()).setExpiration(new Date(System.currentTimeMillis() + tokenExpiration));
 
 
-        return jwtBuilder.signWith(SignatureAlgorithm.HS512, JWT_SECRET).compact();
+
+        return prefix+jwtBuilder.signWith(SignatureAlgorithm.HS512, JWT_SECRET).compact();
     }
 
-    private static String getnerateToken(Authentication auth, TYPE type) {
-        return getnerateToken(auth, type, type == TYPE.ACCESS_TOKEN ? JWT_ACCESS_EXPIRATION : JWT_REFRESH_EXPIRATION);
+    public static String generateToken(AuthData auth, TYPE type) {
+        return generateToken(auth, type, type == TYPE.ACCESS_TOKEN ? JWT_ACCESS_EXPIRATION : JWT_REFRESH_EXPIRATION);
     }
 
 
     static Authentication getAuthentication(HttpServletRequest request) {
 
-
-
-
-
         String token = extractToken(request, TYPE.ACCESS_TOKEN);
+        token = token.substring(JWT_ACCESS_PREFIX.length());
 
 
 
@@ -154,15 +159,33 @@ public class TokenAuthenticationHelper {
                             .collect(Collectors.toList());
 
             String userName = claims.getSubject();
-            return userName != null ? new UsernamePasswordAuthenticationToken(userName, null, authorities) : null;
+
+            if(userName == null) {
+                return null;
+            }
+
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userName, null, authorities);
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            return authentication;
         }
         return null;
     }
 
-    static String extractToken(HttpServletRequest request, TYPE tokenType){
-        Cookie cookie = WebUtils.getCookie(request, tokenType == TYPE.ACCESS_TOKEN ? JWT_ACCESS_PREFIX : JWT_REFRESH_PREFIX);
+    public static String extractToken(HttpServletRequest request, TYPE tokenType){
+        /*Cookie cookie = WebUtils.getCookie(request, tokenType == TYPE.ACCESS_TOKEN ? JWT_ACCESS_PREFIX : JWT_REFRESH_PREFIX);
 
-        return cookie != null ? cookie.getValue() : null;
+        return cookie != null ? cookie.getValue() : null;*/
+
+        String tokenHeader = tokenType == TYPE.ACCESS_TOKEN ? JWT_ACCESS_HEADER : JWT_REFRESH_HEADER;
+
+        return request.getHeader(tokenHeader);
     }
 
+    public static long getJwtAccessExpiration() {
+        return JWT_ACCESS_EXPIRATION;
+    }
+
+    public static long getJwtRefreshExpiration() {
+        return JWT_REFRESH_EXPIRATION;
+    }
 }

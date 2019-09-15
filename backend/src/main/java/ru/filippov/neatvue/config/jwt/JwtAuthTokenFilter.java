@@ -18,8 +18,7 @@ import java.io.IOException;
 @Slf4j
 public class JwtAuthTokenFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private TokenProvider tokenProvider;
+
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
@@ -32,10 +31,10 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
     										throws ServletException, IOException {
         try {
         	
-            String actionToken = tokenProvider.getToken(request);
+            String actionToken = ""; //tokenProvider.getToken(request);
             //String refreshToken = tokenProvider.(request);
             if (actionToken !=null) {
-                String username = tokenProvider.getUserNameFromToken(actionToken);
+                String username = "" ;//tokenProvider.getUserNameFromToken(actionToken);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authentication 

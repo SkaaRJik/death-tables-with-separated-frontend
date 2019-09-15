@@ -1,5 +1,6 @@
 package ru.filippov.neatvue.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,7 @@ import ru.filippov.neatvue.config.jwt.JWTAuthenticationFilter;
 import ru.filippov.neatvue.config.jwt.JWTLoginFilter;
 import ru.filippov.neatvue.config.jwt.JwtAuthEntryPoint;
 import ru.filippov.neatvue.config.jwt.JwtAuthTokenFilter;
+import ru.filippov.neatvue.domain.Role;
 import ru.filippov.neatvue.service.user.UserDetailsServiceImpl;
 
 import javax.annotation.Resource;
@@ -31,6 +33,12 @@ import java.util.Arrays;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+
+    @Bean
+    public ObjectMapper getObjectMapper(){
+        return new ObjectMapper();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -52,6 +60,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return source;
     }
 
+    @Bean
+    public JWTLoginFilter getJWTLoginFilter () throws Exception {
+       return new JWTLoginFilter("/login", authenticationManager());
+    }
+
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -62,11 +76,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 .and()
                 .authorizeRequests()
-                .antMatchers("api/secured/admin**").hasAuthority("ADMIN")
-                .antMatchers("api/secured/user/**").hasAnyAuthority("USER", "ADMIN")
+                .antMatchers("api/secured/admin/**").hasAuthority(Role.ADMIN.name())
+                .antMatchers("api/secured/user/**").hasAnyAuthority(Role.USER.name(), Role.ADMIN.name())
                 .antMatchers("/**").permitAll()
                 .and()
-                .addFilterBefore(new JWTLoginFilter("/login", authenticationManager()), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(getJWTLoginFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new JWTAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     }
 

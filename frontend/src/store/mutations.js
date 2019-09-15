@@ -13,5 +13,12 @@ export const mutations = {
   },
   setLoading (state, payload) {
     state.loading = payload
-  }
+  },
+
+  setRefreshToken (state, payload) {
+    localStorage.setItem("refresh_token", payload)
+  },
+  clearRefreshToken(state) {
+    localStorage.removeItem("refresh_token")
+  },
 }

@@ -15,7 +15,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class Location extends BaseEntity {
 
-
+    @Column(unique = true)
     private String name;
 
 

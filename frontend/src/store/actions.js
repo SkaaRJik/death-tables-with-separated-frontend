@@ -9,7 +9,7 @@ import browserDetector from '../libraries/device'
 const url = RestServiceConfig.host + ':' + RestServiceConfig.port
 
 export const actions = {
-  userSignIn ({commit}, payload) {
+  async userSignIn ({commit}, payload) {
       const user = browserDetector.parse(navigator.userAgent);
 
       let data = {
@@ -22,21 +22,32 @@ export const actions = {
           }
       }
     commit('setLoading', true)
-    axios.post(url+'/login', data)
-     .then(res => {
-       commit ('setAuth', true)
-       commit ('setLoading', false)
-       commit ('setError', null)
-       EventBus.$emit('authenticated', 'User authenticated')
-       router.push('/home')
-     })
-    .catch(error => {
+      try {
+
+
+          const res = await axios.post(url + '/login', data)
+          commit('setAuth', true)
+          commit('setLoading', false)
+          commit('setError', null)
+
+         /* const refreshToken = EventBus.$cookie.get('Refresh')
+          EventBus.$cookie.delete('Refresh')*/
+         const  userProfile = res.data
+          commit('setUser', userProfile)
+          axios.defaults.headers.common['authorization'] = userProfile.token.accessToken
+
+
+          EventBus.$emit('authenticated', 'User authenticated')
+          router.push('/statistics')
+
+      }catch(error){
       commit('setError', error.message)
       commit('setLoading', false)
-    })
+    }
   },
   userSignOut ({commit}) {
     commit ('clearAuth')
+    commit ('clearRefreshToken')
     EventBus.$emit('authenticated', 'User not authenticated')
     router.push('/signIn')
   }

@@ -5,22 +5,11 @@ import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import ru.filippov.neatvue.config.jwt.TokenProvider;
-import ru.filippov.neatvue.domain.User;
-import ru.filippov.neatvue.dto.ProfileDto;
-import ru.filippov.neatvue.dto.SignInDto;
 import ru.filippov.neatvue.dto.SignUpDto;
-import ru.filippov.neatvue.dto.TokenDto;
 import ru.filippov.neatvue.service.auth.AuthService;
 import ru.filippov.neatvue.service.user.UserDetailsServiceImpl;
-import ru.filippov.neatvue.service.user.UserPrinciple;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -38,8 +27,6 @@ public class AuthorizationRestAPI {
     @Autowired
     AuthService authService;
 
-    @Autowired
-    TokenProvider jwtProvider;
 
 
     /*@PostMapping("/signin")
@@ -103,6 +90,7 @@ public class AuthorizationRestAPI {
             userService.registrate(signUpRequest);
         } catch (PSQLException e) {
             e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body("Невозможно зарегистрировать пользователя");
         }
 
         return ResponseEntity.ok().body("Пользователь зарегистрирован успешно. На ваш e-mail отправлено письмо с подтверждением регистрации.");

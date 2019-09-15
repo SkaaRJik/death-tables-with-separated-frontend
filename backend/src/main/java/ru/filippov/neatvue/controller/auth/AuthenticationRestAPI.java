@@ -1,21 +1,19 @@
 package ru.filippov.neatvue.controller.auth;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
-import ru.filippov.neatvue.config.jwt.TokenAuthenticationHelper;
-import ru.filippov.neatvue.config.jwt.TokenProvider;
-import ru.filippov.neatvue.dto.TokenDto;
 import ru.filippov.neatvue.service.auth.AuthService;
 import ru.filippov.neatvue.service.user.UserDetailsServiceImpl;
 
 import javax.security.sasl.AuthenticationException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -29,27 +27,23 @@ public class AuthenticationRestAPI {
     @Autowired
     AuthService authService;
 
-    @Autowired
-    TokenProvider jwtProvider;
-
-    @PutMapping("/refresh-token")
-    public ResponseEntity<TokenDto> refreshTokens(final HttpServletRequest request, HttpServletResponse response) {
-        TokenDto newTokens = null;
 
 
-
-        
-
+    @GetMapping("/refresh-token")
+    public ResponseEntity refreshTokens(@RequestParam("token") final String oldRefreshToken, HttpServletResponse response) {
 
         try {
-            newTokens = authService.refreshTokens(tokens.getRefreshToken(), this.jwtProvider);
+            authService.refreshTokens(oldRefreshToken, response);
         } catch (AuthenticationException e) {
             e.printStackTrace();
-            return new ResponseEntity<TokenDto>( new TokenDto("", "", 0, 0),
-                    HttpStatus.UNAUTHORIZED);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }  catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException |
+                SignatureException | IllegalArgumentException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
 
 
-        return ResponseEntity.ok().body(newTokens);
+        return ResponseEntity.ok("Tokens were refreshed");
     }
 }

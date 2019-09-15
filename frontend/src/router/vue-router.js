@@ -4,6 +4,7 @@ import Home from '@/components/Home'
 import NotFound from '@/components/NotFound'
 import SignIn from '@/components/SignIn'
 import Secured from '@/components/Secured'
+import StatisticPage from "@/components/StatisticPage";
 
 Vue.use(Router)
 
@@ -18,6 +19,13 @@ const router = new Router({
       path: '/home',
       name: 'Home',
       component: Home,
+      meta: {nonRequiresAuth: true}
+    },
+
+    {
+      path: '/statistics',
+      name: 'Statistic',
+      component: StatisticPage,
       meta: {nonRequiresAuth: true}
     },
     {

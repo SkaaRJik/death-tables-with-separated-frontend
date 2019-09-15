@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.filippov.neatvue.config.jwt.AuthData;
+import ru.filippov.neatvue.config.jwt.TokenAuthenticationHelper;
 import ru.filippov.neatvue.config.jwt.TokenProvider;
 import ru.filippov.neatvue.domain.Auth;
 import ru.filippov.neatvue.domain.User;
@@ -11,6 +13,7 @@ import ru.filippov.neatvue.dto.TokenDto;
 import ru.filippov.neatvue.repository.AuthRepository;
 
 import javax.security.sasl.AuthenticationException;
+import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
 @Service
@@ -48,25 +51,18 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenDto refreshTokens (String refreshToken, TokenProvider tokenProvider) throws AuthenticationException {
-        TokenDto tokens = null;
+    public void refreshTokens (String refreshToken, HttpServletResponse response) throws AuthenticationException {
 
-        Auth auth = authRepository.findByRefreshToken(refreshToken).orElseThrow(AuthenticationException::new);
 
-        tokens = new TokenDto(
-                tokenProvider.generateAccessToken(auth.getUser()),
-                tokenProvider.generateRefreshToken(auth.getUser()),
-                tokenProvider.getAccessTokenExpiration(),
-                tokenProvider.getRefreshTokenExpiration()
-        );
+        Auth auth = authRepository.findByRefreshToken(refreshToken).orElseThrow(() -> {return new AuthenticationException("Refresh token is expired");});
 
-        auth.setRefreshToken(tokens.getRefreshToken());
+
+        TokenAuthenticationHelper.addTokenInsideCookie(response, new AuthData(auth.getUser()), TokenAuthenticationHelper.TYPE.ACCESS_TOKEN);
+        String newRefreshToken = TokenAuthenticationHelper.addTokenInsideCookie(response, new AuthData(auth.getUser()), TokenAuthenticationHelper.TYPE.REFRESH_TOKEN);
+
+        auth.setRefreshToken(newRefreshToken);
 
         authRepository.save(auth);
-
-
-        return tokens;
-
 
 
     }

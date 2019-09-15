@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router/vue-router'
 import VueResource from 'vue-resource'
+import VueCookie from 'vue-cookie'
 
 import '@babel/polyfill'
 
@@ -23,6 +24,8 @@ Vue.config.productionTip = false
 
 
 
+// Tell Vue to use the plugin
+Vue.use(VueCookie);
 Vue.use(VueResource)
 
 

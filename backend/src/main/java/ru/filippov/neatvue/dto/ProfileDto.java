@@ -14,6 +14,7 @@ public class ProfileDto {
     private final String firstname;
     private final String lastname;
     private final String email;
+    private final String username;
     private final ImageDto avatar;
     private final TokenDto token;
 
@@ -24,6 +25,7 @@ public class ProfileDto {
                 userPrincipal.getFirstname(),
                 userPrincipal.getLastname(),
                 userPrincipal.getUsername(),
+                userPrincipal.getEmail(),
                 new ImageDto(UtilBase64Image.encoder(userPrincipal.getAvatar())),
                 tokenInfo
         );

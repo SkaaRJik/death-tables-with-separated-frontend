@@ -8,8 +8,8 @@ spring:
     password: root
     driverClassName: org.postgresql.Driver
   jackson:
-      serialization:
-        FAIL_ON_EMPTY_BEANS: false
+    serialization:
+      FAIL_ON_EMPTY_BEANS: false
   jpa:
     generate-ddl: true
     properties:
@@ -21,13 +21,16 @@ spring:
 # App Properties
 app:
   jwt:
-    Secret: SECRET
-    Access_Expiration: 86400
-    Refresh_Expiration: 864000
-    prefix:
-      access: 'Bearer:'
-      refresh: 'Refresh:'
-    Header: Authorization
+    secret: SECRET
+    token:
+      access:
+        prefix: "Bearer_"
+        expiration: 86400
+        header: authorization
+      refresh:
+        prefix: "Refresh_"
+        expiration: 864000
+        header: refresh
   default:
     avatar: F:\JavaProjects\deathTables\src\main\resources\static\assets\img\default-avatar.png
 

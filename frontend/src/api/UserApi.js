@@ -14,5 +14,8 @@ export default {
   },
   getInfo() {
     return axios.get(url+'/test')
+  },
+  refreshToken(refreshToken) {
+    return axios.get(url+'/refresh-token', {params: {token: refreshToken}})
   }
 }

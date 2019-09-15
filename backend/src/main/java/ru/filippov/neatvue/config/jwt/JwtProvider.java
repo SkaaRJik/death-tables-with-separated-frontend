@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 
-@Component
-@Slf4j
+
+
 public class JwtProvider implements TokenProvider {
 
 
