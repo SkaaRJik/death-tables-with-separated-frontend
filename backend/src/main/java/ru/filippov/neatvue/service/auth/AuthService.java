@@ -51,18 +51,26 @@ public class AuthService {
     }
 
     @Transactional
-    public void refreshTokens (String refreshToken, HttpServletResponse response) throws AuthenticationException {
+    public TokenDto refreshTokens (String refreshToken) throws AuthenticationException {
 
 
         Auth auth = authRepository.findByRefreshToken(refreshToken).orElseThrow(() -> {return new AuthenticationException("Refresh token is expired");});
 
+        AuthData authData = new AuthData(auth.getUser());
 
-        TokenAuthenticationHelper.addTokenInsideCookie(response, new AuthData(auth.getUser()), TokenAuthenticationHelper.TYPE.ACCESS_TOKEN);
+        String accessToken = TokenAuthenticationHelper.generateToken(authData, TokenAuthenticationHelper.TYPE.ACCESS_TOKEN);
+        String newRefreshToken = TokenAuthenticationHelper.generateToken(authData, TokenAuthenticationHelper.TYPE.ACCESS_TOKEN);
+
+
+
+        /*TokenAuthenticationHelper.addTokenInsideCookie(response, new AuthData(auth.getUser()), TokenAuthenticationHelper.TYPE.ACCESS_TOKEN);
         String newRefreshToken = TokenAuthenticationHelper.addTokenInsideCookie(response, new AuthData(auth.getUser()), TokenAuthenticationHelper.TYPE.REFRESH_TOKEN);
-
+*/
         auth.setRefreshToken(newRefreshToken);
 
         authRepository.save(auth);
+
+        return new TokenDto(accessToken, refreshToken, TokenAuthenticationHelper.getJwtAccessExpiration(), TokenAuthenticationHelper.getJwtAccessExpiration());
 
 
     }

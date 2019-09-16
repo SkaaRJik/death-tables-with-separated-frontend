@@ -56,10 +56,12 @@ public class DeathTableService {
         Map<String, Map<Short, Map<Byte, DeathData>>> data = new HashMap<>(dataTypes.size());
         Map<Short, Map<Byte, DeathData>> yearsMap;
         Map<Byte, DeathData> agesMap;
+        List<Short> tempYears =  mode == Mode.YEAR ? targetYears : years;
+
         for (DataType dataType : dataTypes) {
             yearsMap = new HashMap<>(years.size());
-            if(mode == Mode.YEAR){
-                short newYear;
+            /*if(mode == Mode.YEAR){
+
 
                 for(short year : targetYears) {
 
@@ -75,21 +77,26 @@ public class DeathTableService {
                     }
                 }
             } else {
-                for (int i = 0; i < years.size(); i++) {
-                    yearsMap.put(years.get(i), new HashMap<>(ages.size()));
+                for (int i = 0; i < tempYears.size(); i++) {
+                    yearsMap.put(tempYears.get(i), new HashMap<>(ages.size()));
                 }
+            }*/
+
+            for (int i = 0; i < tempYears.size(); i++) {
+                yearsMap.put(tempYears.get(i), new HashMap<>(ages.size()));
             }
             data.put(dataType.name(), yearsMap);
         }
 
         for(DeathNote deathNote : deathNotes) {
+
             for (DataType dataType : dataTypes) {
                 switch (dataType) {
                     case TOTAL:
                         if(mode == Mode.YEAR){
-                            agesMap = data.get(dataType.name()).get(deathNote.getBirthYear());
-                            if(agesMap.containsKey(deathNote.getAge())){
-                                agesMap.put(deathNote.getAge(), deathNote.getDeathDataTotal());
+                            yearsMap = data.get(dataType.name());
+                            if(yearsMap.containsKey((short)(deathNote.getBirthYear()+deathNote.getAge()))) {
+                                yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataTotal());
                             }
                         } else {
                             data.get(dataType.name()).get(deathNote.getBirthYear()).put(deathNote.getAge(), deathNote.getDeathDataTotal());
@@ -97,9 +104,10 @@ public class DeathTableService {
                         break;
                     case MALE:
                         if(mode == Mode.YEAR){
-                            agesMap = data.get(dataType.name()).get(deathNote.getBirthYear());
-                            if(agesMap.containsKey(deathNote.getAge())){
-                                agesMap.put(deathNote.getAge(), deathNote.getDeathDataMale());
+                            yearsMap = data.get(dataType.name());
+                            if(yearsMap.containsKey((short) (deathNote.getBirthYear()+deathNote.getAge()))) {
+                                log.info(deathNote.getBirthYear() + " " + deathNote.getAge());
+                                yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataMale());
                             }
                         } else {
                             data.get(dataType.name()).get(deathNote.getBirthYear()).put(deathNote.getAge(), deathNote.getDeathDataMale());
@@ -107,9 +115,9 @@ public class DeathTableService {
                         break;
                     case FEMALE:
                         if(mode == Mode.YEAR){
-                            agesMap = data.get(dataType.name()).get(deathNote.getBirthYear());
-                            if(agesMap.containsKey(deathNote.getAge())){
-                                agesMap.put(deathNote.getAge(), deathNote.getDeathDataFemale());
+                            yearsMap = data.get(dataType.name());
+                            if(yearsMap.containsKey((short) (deathNote.getBirthYear()+deathNote.getAge()))) {
+                                yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataFemale());
                             }
                         } else {
                             data.get(dataType.name()).get(deathNote.getBirthYear()).put(deathNote.getAge(), deathNote.getDeathDataFemale());
@@ -117,9 +125,9 @@ public class DeathTableService {
                         break;
                     case VILLAGER:
                         if(mode == Mode.YEAR){
-                            agesMap = data.get(dataType.name()).get(deathNote.getBirthYear());
-                            if(agesMap.containsKey(deathNote.getAge())){
-                                agesMap.put(deathNote.getAge(), deathNote.getDeathDataVillager());
+                            yearsMap = data.get(dataType.name());
+                            if(yearsMap.containsKey((short) (deathNote.getBirthYear()+deathNote.getAge()))) {
+                                yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataVillager());
                             }
                         } else {
                             data.get(dataType.name()).get(deathNote.getBirthYear()).put(deathNote.getAge(), deathNote.getDeathDataVillager());
@@ -127,9 +135,9 @@ public class DeathTableService {
                         break;
                     case CITY_DWELLER:
                         if(mode == Mode.YEAR){
-                            agesMap = data.get(dataType.name()).get(deathNote.getBirthYear());
-                            if(agesMap.containsKey(deathNote.getAge())){
-                                agesMap.put(deathNote.getAge(), deathNote.getDeathDataCityDweller());
+                            yearsMap = data.get(dataType.name());
+                            if(yearsMap.containsKey( (short) (deathNote.getBirthYear()+deathNote.getAge()))) {
+                                yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataCityDweller());
                             }
                         } else {
                             data.get(dataType.name()).get(deathNote.getBirthYear()).put(deathNote.getAge(), deathNote.getDeathDataCityDweller());

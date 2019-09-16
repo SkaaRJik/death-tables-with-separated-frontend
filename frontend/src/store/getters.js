@@ -13,5 +13,8 @@ export const getters = {
   },
   getLoading (state) {
     return state.loading
+  },
+  getRefreshToken(state) {
+    return state.refreshToken
   }
 }

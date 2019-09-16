@@ -16,6 +16,6 @@ export default {
     return axios.get(url+'/test')
   },
   refreshToken(refreshToken) {
-    return axios.get(url+'/refresh-token', {params: {token: refreshToken}})
+    return axios.get(url+'user/auth/refresh-token', {params: {token: refreshToken}})
   }
 }

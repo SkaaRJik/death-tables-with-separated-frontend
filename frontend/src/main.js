@@ -13,7 +13,7 @@ import '@babel/polyfill'
 import store from './store/vuex-store'
 import * as axios from "axios"
 import vuetify from "./vuetify/vuetify"
-
+import UserApi from "./api/UserApi"
 
 axios.defaults.withCredentials = true
 

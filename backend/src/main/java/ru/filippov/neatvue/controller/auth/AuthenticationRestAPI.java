@@ -17,7 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/secured/user/auth")
+@RequestMapping("/api/public/user/auth")
 @Slf4j
 public class AuthenticationRestAPI {
 
@@ -33,7 +33,7 @@ public class AuthenticationRestAPI {
     public ResponseEntity refreshTokens(@RequestParam("token") final String oldRefreshToken, HttpServletResponse response) {
 
         try {
-            authService.refreshTokens(oldRefreshToken, response);
+            return ResponseEntity.ok(authService.refreshTokens(oldRefreshToken));
         } catch (AuthenticationException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
@@ -43,7 +43,5 @@ public class AuthenticationRestAPI {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
 
-
-        return ResponseEntity.ok("Tokens were refreshed");
     }
 }

@@ -35,7 +35,7 @@ export const actions = {
          const  userProfile = res.data
           commit('setUser', userProfile)
           axios.defaults.headers.common['authorization'] = userProfile.token.accessToken
-
+          commit('setRefreshToken', userProfile.token.refreshToken)
 
           EventBus.$emit('authenticated', 'User authenticated')
           router.push('/statistics')
@@ -46,9 +46,10 @@ export const actions = {
     }
   },
   userSignOut ({commit}) {
-    commit ('clearAuth')
-    commit ('clearRefreshToken')
-    EventBus.$emit('authenticated', 'User not authenticated')
-    router.push('/signIn')
+      commit ('clearAuth')
+      commit('clearRefreshToken')
+      commit ('setUser', null)
+      EventBus.$emit('authenticated', 'User not authenticated')
+      router.push('/signIn')
   }
 }
