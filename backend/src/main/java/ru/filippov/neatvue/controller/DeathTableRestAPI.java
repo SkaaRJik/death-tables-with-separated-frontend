@@ -1,7 +1,6 @@
 package ru.filippov.neatvue.controller;
 
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.filippov.neatvue.domain.death.Location;
 import ru.filippov.neatvue.service.death.DeathTableService;
 
-import java.io.IOException;
 import java.sql.SQLDataException;
+import java.sql.SQLException;
 import java.util.*;
 
 @RestController
@@ -58,11 +57,11 @@ public class DeathTableRestAPI {
                 dataTypes.add(DeathTableService.DataType.TOTAL);
             }
 
-            List<Short> years;
+
             List<Byte> ages;
 
 
-
+            /*List<Short> years;
             String yearSelector = (String) allParams.getFirst("yearSelector");
 
             if("range".equals(yearSelector)){
@@ -81,7 +80,9 @@ public class DeathTableRestAPI {
                 for (int i = 0; i < split.length; i++) {
                     years.add(Short.parseShort(split[i]));
                 }
-            }
+            }*/
+
+            Short year = Short.parseShort((String)allParams.getFirst("year"));
 
             String ageSelector = (String) allParams.getFirst("ageSelector");
 
@@ -108,18 +109,27 @@ public class DeathTableRestAPI {
 
 
             if("birth".equals(yearMode)){
-                responseData = deathTableService.getDeathNoteByLocationAndBirthYearsAndAges(dataTypes, location, years,years ,ages, DeathTableService.Mode.BIRTH_YEAR);
+                //responseData = deathTableService.getDeathNoteByLocationAndBirthYearsAndAges(dataTypes, location, years,years ,ages, DeathTableService.Mode.BIRTH_YEAR);
+                responseData = deathTableService.getDeathNoteByLocationAndBirthYearAndAges(dataTypes, location, year ,ages);
             } else {
 
-                List<Short> newYears = new ArrayList<>(years.size()*ages.size());
+                /*List<Short> newYears = new ArrayList<>(years.size()*ages.size());
 
                 for (short year : years) {
                     for (byte age : ages){
                         newYears.add((short)(year-age));
                     }
+                }*/
+
+
+                List<Short> newYears = new ArrayList<>(ages.size());
+
+                for (byte age : ages){
+                    newYears.add((short)(year-age));
                 }
 
-                responseData = deathTableService.getDeathNoteByLocationAndBirthYearsAndAges(dataTypes, location, newYears, years,ages, DeathTableService.Mode.YEAR);
+                //responseData = deathTableService.getDeathNoteByLocationAndBirthYearsAndAges(dataTypes, location, newYears, years,ages, DeathTableService.Mode.CERTAIN_YEAR);
+                responseData = deathTableService.getDeathNoteByLocationAndCertainYearAndAges(dataTypes, location, newYears, year,ages);
 
 
 
@@ -144,7 +154,13 @@ public class DeathTableRestAPI {
                         Byte.valueOf(String.valueOf(filter.get("ageFrom"))),
                         Byte.valueOf(String.valueOf(filter.get("ageTo")))));
             }*/
-        } catch (Exception e) {
+        }
+        catch (SQLDataException e) {
+            log.error(e.getMessage());
+            return new ResponseEntity("Нет результатов удовлетворяющих запросу",
+                    HttpStatus.NO_CONTENT);
+        }
+        catch (Exception e) {
             log.error(e.getMessage());
             return new ResponseEntity("Не удалось распознать запрос",
                     HttpStatus.BAD_REQUEST);

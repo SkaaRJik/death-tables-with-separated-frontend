@@ -1,17 +1,20 @@
-package ru.filippov.neatvue.config.jwt;
+package ru.filippov.neatvue.config.jwt.alexatiks;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.stereotype.Component;
+import ru.filippov.neatvue.config.jwt.AuthData;
+import ru.filippov.neatvue.config.jwt.TokenProvider;
 import ru.filippov.neatvue.domain.User;
 import ru.filippov.neatvue.dto.ProfileDto;
 import ru.filippov.neatvue.dto.SignInDto;
@@ -20,19 +23,23 @@ import ru.filippov.neatvue.service.auth.AuthService;
 import ru.filippov.neatvue.service.user.UserPrinciple;
 
 import javax.servlet.FilterChain;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+/*
 public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
+
+    @Autowired
+    private TokenProvider tokenProvider;
 
     @Autowired
     private   AuthService authService;
 
-    @Autowired
-    private ObjectMapper objectMapper;
 
 
     public JWTLoginFilter(String url, AuthenticationManager authManager) {
@@ -59,13 +66,13 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
         );
     }
 
-    @Override
+   */ /* @Override
     protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication auth) {
 
         AuthData authData = new AuthData(auth);
 
-        String accessToken = TokenAuthenticationHelper.generateToken(authData, TokenAuthenticationHelper.TYPE.ACCESS_TOKEN);
-        String refreshToken = TokenAuthenticationHelper.generateToken(authData, TokenAuthenticationHelper.TYPE.ACCESS_TOKEN);
+        String accessToken = tokenProvider.generateAccessToken(authData);
+        String refreshToken = tokenProvider.generateRefreshToken(authData);
 
 
 
@@ -79,16 +86,17 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
         String os = res.getHeader("os");
 
         TokenDto tokenContainer = new TokenDto(accessToken, refreshToken,
-                TokenAuthenticationHelper.getJwtAccessExpiration(), TokenAuthenticationHelper.getJwtRefreshExpiration());
+                tokenProvider.getJwtAccessExpiration(), tokenProvider.getJwtRefreshExpiration());
 
-        ProfileDto userProfile = ProfileDto.build(tokenContainer, auth);
+        ProfileDto userProfile = ProfileDto.build(auth);
 
+        Map<String, Object> responseData = new HashMap<>(2);
+        responseData.put("userProfile", userProfile);
+        responseData.put("tokens", tokenContainer);
 
         try {
-            res.getOutputStream().write(objectMapper.writeValueAsString(userProfile).getBytes(StandardCharsets.UTF_8));
-           /* res.getWriter().write(objectMapper.writeValueAsString(userProfile));
-            res.getWriter().flush();
-            res.getWriter().close();*/
+            res.getOutputStream().write(new ObjectMapper().writeValueAsString(responseData).getBytes(StandardCharsets.UTF_8));
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -103,4 +111,6 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
 
     }
 
-}
+*/
+
+//}

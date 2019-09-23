@@ -1,36 +1,30 @@
 package ru.filippov.neatvue.config.jwt;
 
-import com.auth0.jwt.JWTCreator;
-import com.auth0.jwt.exceptions.JWTVerificationException;
 import org.springframework.security.core.Authentication;
-import ru.filippov.neatvue.domain.User;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
+import java.util.Map;
 
 
 public interface TokenProvider {
 
+     String generateAccessToken(AuthData auth);
 
-    String generateRefreshToken(User user, long expiration);
-    String generateAccessToken(User user, long expiration);
-    String generateRefreshToken(Authentication authentication, long expiration);
-    String generateAccessToken(Authentication authentication, long expiration);
-    String generateRefreshToken(User user);
-    String generateAccessToken(User user);
-    String generateRefreshToken(Authentication authentication);
-    String generateAccessToken(Authentication authentication);
+     String generateAccessToken(AuthData auth, long tokenExpiration);
 
+     String generateRefreshToken(AuthData auth);
 
+     String generateRefreshToken(AuthData auth, long tokenExpiration);
 
-    boolean validateToken(String authToken);
+    String extractAccessTokenFromHeader(HttpServletRequest request);
 
-    String getUserNameFromToken(String token) throws JWTVerificationException;
+    long getJwtAccessExpiration();
 
-    String getHeader(String token) throws JWTVerificationException;
+    long getJwtRefreshExpiration();
 
-    String getToken(HttpServletRequest request);
+    String validateRefreshToken(String token);
 
-    long getAccessTokenExpiration();
-    long getRefreshTokenExpiration();
+    Map<String, Object> extractAccessTokenDataFromRequest(HttpServletRequest request);
+
+    Authentication getAuthentication(HttpServletRequest request);
 }

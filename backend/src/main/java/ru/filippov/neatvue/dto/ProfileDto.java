@@ -16,9 +16,8 @@ public class ProfileDto {
     private final String email;
     private final String username;
     private final ImageDto avatar;
-    private final TokenDto token;
 
-    public static ProfileDto build(TokenDto tokenInfo, Authentication authentication){
+    public static ProfileDto build(Authentication authentication){
 
         UserPrinciple userPrincipal = (UserPrinciple) authentication.getPrincipal();
         return new ProfileDto(
@@ -26,8 +25,7 @@ public class ProfileDto {
                 userPrincipal.getLastname(),
                 userPrincipal.getUsername(),
                 userPrincipal.getEmail(),
-                new ImageDto(UtilBase64Image.encoder(userPrincipal.getAvatar())),
-                tokenInfo
+                new ImageDto(UtilBase64Image.encoder(userPrincipal.getAvatar()))
         );
     }
     //private final static String type = "Bearer";

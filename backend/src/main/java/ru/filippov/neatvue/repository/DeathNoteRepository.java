@@ -19,6 +19,7 @@ public interface DeathNoteRepository extends JpaRepository<DeathNote, Long> {
     Optional<List<DeathNote>> findAllByLocationAndBirthYearBetweenAndAgeIn( Location location, short birthYearFrom, short birthYearTo, List<Byte> ages);
     Optional<List<DeathNote>> findAllByLocationAndBirthYearBetweenAndAgeBetween( Location location, short birthYearFrom, short birthYearTo, byte ageFrom, byte ageTo);
     Optional<List<DeathNote>> findAllByLocationAndBirthYearInAndAgeIn( Location location, List<Short> birthYears, List<Byte> ages);
+    Optional<List<DeathNote>> findAllByLocationAndBirthYearAndAgeIn( Location location, Short birthYear, List<Byte> ages);
 
 
     @Query("SELECT DISTINCT u.birthYear FROM DeathNote u ORDER BY u.birthYear")

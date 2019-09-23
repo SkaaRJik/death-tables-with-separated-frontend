@@ -12,6 +12,7 @@ import ru.filippov.neatvue.domain.User;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -30,7 +31,5 @@ public class AuthData {
         this.username = authentication.getName();
         this.authorities = authentication.getAuthorities().stream().collect(Collectors.toList());
     }
-
-
 
 }

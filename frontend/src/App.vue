@@ -6,20 +6,16 @@
             clipped
     >
       <v-list dense>
-        <v-list-item @click="">
+
+        <v-list-item
+                v-for="item in menuItems"
+                      :key="item.title"
+                      :to="item.path">
           <v-list-item-action>
-            <v-icon>mdi-view-dashboard</v-icon>
+            <v-icon>{{item.icon}}</v-icon>
           </v-list-item-action>
           <v-list-item-content>
-            <v-list-item-title>Dashboard</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item @click="">
-          <v-list-item-action>
-            <v-icon>mdi-settings</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Settings</v-list-item-title>
+            <v-list-item-title>{{item.title}}</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -34,7 +30,6 @@
     </v-app-bar>
 
     <v-content>
-
       <router-view/>
     </v-content>
 
@@ -47,7 +42,8 @@
 
 <script>
   import { EventBus } from './event-bus.js'
-
+  import AuthApi from './api/AuthApi'
+  import router from './router/vue-router'
 
 
   export default {
@@ -55,14 +51,38 @@
     data() {
       return {
         isAuthenticated: false,
+        tokens: null,
         drawer: false
       }
     },
     created () {
-      this.isAuthenticated = localStorage.getItem("auth")
+
+      this.tokens = localStorage.getItem("tokens")
+      console.log('tokens: ' + this.tokens)
+
+      if (this.tokens == null){
+        this.isAuthenticated = false
+        router.replace('login')
+      } else {
+        AuthApi.refreshTokenWithParam(this.tokens.refreshToken).then(res => {
+          this.tokens = res.data
+          localStorage.setItem("tokens", this.tokens)
+          this.isAuthenticated = true
+
+        })
+      }
+      console.log('-----------------------------------------------------------')
+      console.log('tokens: ' + this.tokens)
+      console.log('isAuthenticated: ' + this.isAuthenticated)
+
+      localStorage.setItem("auth", this.isAuthenticated)
+
+
+
       //Use localstorage because isAuthenticated from $store is undefined when event is called
       EventBus.$on('authenticated', () => {
         this.isAuthenticated = localStorage.getItem("auth")
+        console.log('isAuthenticated: ' + this.isAuthenticated)
       });
     },
     beforeDestroy() {
@@ -73,12 +93,14 @@
         if (this.isAuthenticated) {
           return [
             {title: 'Home', path: '/home', icon: 'home'},
+            {title: 'Statistic', path: '/statistic', icon: 'multiline_chart'},
             {title: 'Secured page', path: '/secured', icon: 'vpn_key'}
           ]
         } else {
           return [
             {title: 'Home', path: '/home', icon: 'home'},
-            {title: 'Sign In', path: '/signIn', icon: 'lock_open'}
+            {title: 'Statistic', path: '/statistic', icon: 'multiline_chart'},
+            {title: 'Sign In', path: '/login', icon: 'lock_open'}
           ]
         }
       }

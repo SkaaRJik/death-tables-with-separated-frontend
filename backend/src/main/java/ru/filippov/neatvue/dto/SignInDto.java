@@ -23,8 +23,6 @@ public class SignInDto {
     @Size(min = 3, max = 40)
     private String password;
 
-    private Collection<GrantedAuthority> authorities;
-
     @NotNull
     private HashMap<String, String> deviceInfo;
 

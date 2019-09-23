@@ -1,10 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from '@/components/Home'
-import NotFound from '@/components/NotFound'
-import SignIn from '@/components/SignIn'
-import Secured from '@/components/Secured'
-import StatisticPage from "@/components/StatisticPage";
+import Home from '@/pages/Home'
+import NotFound from '@/pages/NotFound'
+import SignIn from '@/pages/SignIn'
+import Secured from '@/pages/Secured'
+import StatisticPage from "@/pages/StatisticPage";
 
 Vue.use(Router)
 
@@ -23,7 +23,7 @@ const router = new Router({
     },
 
     {
-      path: '/statistics',
+      path: '/statistic',
       name: 'Statistic',
       component: StatisticPage,
       meta: {nonRequiresAuth: true}
@@ -31,10 +31,11 @@ const router = new Router({
     {
       path: '/secured',
       name: 'Secured',
-      component: Secured
+      component: Secured,
+      meta: {nonRequiresAuth: false}
     },
     {
-      path: '/signIn',
+      path: '/login',
       name: 'signIn',
       component: SignIn,
       meta: {loginPage: true, nonRequiresAuth: true}

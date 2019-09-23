@@ -20,6 +20,8 @@ import java.util.Map;
 @Service
 public class DeathTableService {
 
+
+
     public enum DataType{
         MALE,
         FEMALE,
@@ -30,7 +32,7 @@ public class DeathTableService {
 
     public enum Mode {
         BIRTH_YEAR,
-        YEAR
+        CERTAIN_YEAR
     }
 
     @Autowired
@@ -45,6 +47,24 @@ public class DeathTableService {
     }
 
 
+    public Map getDeathNoteByLocationAndCertainYearAndAges(List<DataType> dataTypes, Location location, List<Short> yearsForQuerry, Short year, List<Byte> ages) throws SQLDataException {
+        List<DeathNote> deathNotes = deathNoteRepository.findAllByLocationAndBirthYearInAndAgeIn(location, yearsForQuerry, ages).orElseThrow(() -> new SQLDataException("Нет соответсвий данному запросу"));
+        List<Short> targetYears = new ArrayList<>(1);
+        targetYears.add(year);
+        return packDataToMap(dataTypes, deathNotes, yearsForQuerry, targetYears,ages, Mode.CERTAIN_YEAR);
+    }
+
+    public Map<String, Object> getDeathNoteByLocationAndBirthYearAndAges(List<DataType> dataTypes, Location location, Short year, List<Byte> ages) throws SQLDataException {
+        List<DeathNote> deathNotes = deathNoteRepository.findAllByLocationAndBirthYearAndAgeIn(location, year, ages).orElseThrow(() -> new SQLDataException("Нет соответсвий данному запросу"));
+        List<Short> targetYears = new ArrayList<>(1);
+        List<Short> yearsForQuerry = new ArrayList<>(1);
+        targetYears.add(year);
+        yearsForQuerry.add(year);
+        return packDataToMap(dataTypes, deathNotes, yearsForQuerry, targetYears,ages, Mode.BIRTH_YEAR);
+
+    }
+
+
     public Map getDeathNoteByLocationAndBirthYearsAndAges(List<DataType> dataTypes, Location location, List<Short> yearsForQuerry, List<Short> targetYears, List<Byte> ages, Mode mode) throws SQLDataException {
 
         List<DeathNote> deathNotes = deathNoteRepository.findAllByLocationAndBirthYearInAndAgeIn(location, yearsForQuerry, ages).orElseThrow(() -> new SQLDataException("Нет соответсвий данному запросу"));
@@ -56,11 +76,11 @@ public class DeathTableService {
         Map<String, Map<Short, Map<Byte, DeathData>>> data = new HashMap<>(dataTypes.size());
         Map<Short, Map<Byte, DeathData>> yearsMap;
         Map<Byte, DeathData> agesMap;
-        List<Short> tempYears =  mode == Mode.YEAR ? targetYears : years;
+        List<Short> tempYears =  mode == Mode.CERTAIN_YEAR ? targetYears : years;
 
         for (DataType dataType : dataTypes) {
             yearsMap = new HashMap<>(years.size());
-            /*if(mode == Mode.YEAR){
+            /*if(mode == Mode.CERTAIN_YEAR){
 
 
                 for(short year : targetYears) {
@@ -93,7 +113,7 @@ public class DeathTableService {
             for (DataType dataType : dataTypes) {
                 switch (dataType) {
                     case TOTAL:
-                        if(mode == Mode.YEAR){
+                        if(mode == Mode.CERTAIN_YEAR){
                             yearsMap = data.get(dataType.name());
                             if(yearsMap.containsKey((short)(deathNote.getBirthYear()+deathNote.getAge()))) {
                                 yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataTotal());
@@ -103,7 +123,7 @@ public class DeathTableService {
                         }
                         break;
                     case MALE:
-                        if(mode == Mode.YEAR){
+                        if(mode == Mode.CERTAIN_YEAR){
                             yearsMap = data.get(dataType.name());
                             if(yearsMap.containsKey((short) (deathNote.getBirthYear()+deathNote.getAge()))) {
                                 log.info(deathNote.getBirthYear() + " " + deathNote.getAge());
@@ -114,7 +134,7 @@ public class DeathTableService {
                         }
                         break;
                     case FEMALE:
-                        if(mode == Mode.YEAR){
+                        if(mode == Mode.CERTAIN_YEAR){
                             yearsMap = data.get(dataType.name());
                             if(yearsMap.containsKey((short) (deathNote.getBirthYear()+deathNote.getAge()))) {
                                 yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataFemale());
@@ -124,7 +144,7 @@ public class DeathTableService {
                         }
                         break;
                     case VILLAGER:
-                        if(mode == Mode.YEAR){
+                        if(mode == Mode.CERTAIN_YEAR){
                             yearsMap = data.get(dataType.name());
                             if(yearsMap.containsKey((short) (deathNote.getBirthYear()+deathNote.getAge()))) {
                                 yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataVillager());
@@ -134,7 +154,7 @@ public class DeathTableService {
                         }
                         break;
                     case CITY_DWELLER:
-                        if(mode == Mode.YEAR){
+                        if(mode == Mode.CERTAIN_YEAR){
                             yearsMap = data.get(dataType.name());
                             if(yearsMap.containsKey( (short) (deathNote.getBirthYear()+deathNote.getAge()))) {
                                 yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataCityDweller());

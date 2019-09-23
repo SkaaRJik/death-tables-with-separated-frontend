@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.filippov.neatvue.config.jwt.AuthData;
-import ru.filippov.neatvue.config.jwt.TokenAuthenticationHelper;
+import ru.filippov.neatvue.config.jwt.JWTTokenProvider;
 import ru.filippov.neatvue.config.jwt.TokenProvider;
 import ru.filippov.neatvue.domain.Auth;
 import ru.filippov.neatvue.domain.User;
@@ -13,7 +13,6 @@ import ru.filippov.neatvue.dto.TokenDto;
 import ru.filippov.neatvue.repository.AuthRepository;
 
 import javax.security.sasl.AuthenticationException;
-import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
 @Service
@@ -21,6 +20,9 @@ public class AuthService {
 
     @Autowired
     AuthRepository authRepository;
+
+    @Autowired
+    TokenProvider tokenProvider;
 
     @Transactional
     public void bindToken(User user, String token, String clientIp, String browser, String os){
@@ -58,8 +60,8 @@ public class AuthService {
 
         AuthData authData = new AuthData(auth.getUser());
 
-        String accessToken = TokenAuthenticationHelper.generateToken(authData, TokenAuthenticationHelper.TYPE.ACCESS_TOKEN);
-        String newRefreshToken = TokenAuthenticationHelper.generateToken(authData, TokenAuthenticationHelper.TYPE.ACCESS_TOKEN);
+        String accessToken = tokenProvider.generateAccessToken(authData);
+        String newRefreshToken = tokenProvider.generateRefreshToken(authData);
 
 
 
@@ -70,7 +72,7 @@ public class AuthService {
 
         authRepository.save(auth);
 
-        return new TokenDto(accessToken, refreshToken, TokenAuthenticationHelper.getJwtAccessExpiration(), TokenAuthenticationHelper.getJwtAccessExpiration());
+        return new TokenDto(accessToken, refreshToken, tokenProvider.getJwtAccessExpiration(), tokenProvider.getJwtAccessExpiration());
 
 
     }

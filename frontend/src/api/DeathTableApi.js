@@ -24,9 +24,7 @@ export default {
                 yearMode: params.yearMode,
 
                 yearSelector: params.yearSelector,
-                yearFrom: params.yearFrom,
-                yearTo:  params.yearTo,
-                years: params.years.toString(),
+                year: params.year,
 
                 ageSelector: params.ageSelector,
                 ageFrom: params.ageFrom,

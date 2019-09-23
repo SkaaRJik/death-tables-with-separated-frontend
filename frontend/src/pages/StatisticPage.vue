@@ -341,177 +341,263 @@
              </v-col>
          </v-row>
      </v-container>-->
-    <div>
-        <v-container fluid fill-height>
-            <v-row>
-                <v-col>
-                    <v-card>
-                        <v-list class="ma-2">
-                            <v-list-item>
-                                <v-combobox class="ma-2"
-                                            v-model="currentLocation"
-                                            :items="locations"
-                                            item-text="name"
-                                            item-value="id"
-                                            label="Страна, субъект, город"
-                                />
-                            </v-list-item>
-                            <v-subheader>
-                                Тип данных
-                            </v-subheader>
-                            <v-list-item>
-                                <v-chip-group
-                                        column
-                                        active-class="primary--text"
-                                        v-model="dataTypes"
-                                        multiple
-                                >
-                                    <v-chip value="total">
-                                        Общий
-                                    </v-chip>
-                                    <v-chip value="male">
-                                        Мужчины
-                                    </v-chip>
-                                    <v-chip value="female">
-                                        Женщины
-                                    </v-chip>
-                                    <v-chip value="villager">
-                                        Сельские
-                                    </v-chip>
-                                    <v-chip value="citizen">
-                                        Городские
-                                    </v-chip>
 
-                                </v-chip-group >
-                            </v-list-item>
-                            <v-divider/>
-                            <v-subheader>
-                                Данные
-                            </v-subheader>
-                            <v-list-item>
-                                <v-chip-group
-                                        column
-                                        active-class="primary--text"
-                                        v-model="yearMode"
-                                >
-                                    <v-chip :disabled="dataTypes.length === 0">
-                                        Дата рождения
-                                    </v-chip>
-                                    <v-chip :disabled="dataTypes.length === 0">
-                                        Календарный год
-                                    </v-chip>
-                                </v-chip-group >
-                            </v-list-item>
-                            <v-divider/>
-                            <v-subheader>Года</v-subheader>
-                            <v-list-item>
-                                <v-chip-group
-                                        column
-                                        active-class="primary--text"
-                                        v-model="yearSelector"
+    <v-container >
+        <v-row no-gutters>
+            <!--COL 1-->
+            <v-col cols="12">
+                <v-container >
+                    <v-expansion-panels class="v-expansion-panels-my" v-model="expandParametres" :focusable="true" :popout="true" >
+                        <v-expansion-panel   :key="0" >
+                            <v-expansion-panel-header expand-icon="mdi-menu-down">
+                                Параметры
+                            </v-expansion-panel-header>
+                            <v-expansion-panel-content >
 
-                                >
-                                    <v-chip :disabled = "yearMode == null">
-                                        За период
-                                    </v-chip>
-                                    <v-chip :disabled = "yearMode == null">
-                                        За определенные года
-                                    </v-chip>
-                                </v-chip-group>
-                            </v-list-item>
-                            <v-list-item  v-if="yearSelector === 1">
-                                <v-combobox class="ma-2"
-                                        v-model="yearsData"
-                                        :items="dates"
-                                        label="Выберите года"
-                                        multiple
-                                        chips
-                                ></v-combobox>
-                            </v-list-item>
-                            <v-list-item v-else-if="yearSelector === 0">
-                                <v-combobox class="ma-2"
-                                        v-model="yearFrom"
-                                        :items="dates"
-                                        label="От"
-                                />
-                                <v-combobox class="ma-2"
-                                        v-model="yearTo"
-                                        :items="dates"
-                                        label="До"
-                                />
-                            </v-list-item>
-                            <v-divider/>
-                            <v-subheader>
-                                Возраст
-                            </v-subheader>
-                            <v-list-item>
-                                <v-chip-group
-                                        column
-                                        active-class="primary--text"
-                                        v-model="ageSelector"
-                                >
-                                    <v-chip :disabled="((yearFrom < minYear || yearTo > maxYear) && yearSelector === 0)
-                                    || (yearsData.length === 0 && yearSelector === 1)
-                                    || yearSelector === null
-                                    || yearMode === null">
-                                        В диапозоне
-                                    </v-chip>
-                                    <v-chip :disabled="((yearFrom < minYear || yearTo > maxYear) && yearSelector === 0)
-                                    || (yearsData.length === 0 && yearSelector === 1)
-                                    || yearSelector === null
-                                    || yearMode === null">
-                                        Определенный возраст
-                                    </v-chip>
-                                </v-chip-group>
-                            </v-list-item>
-                            <v-list-item v-if="ageSelector === 1">
-                                <v-combobox class="ma-2"
-                                        v-model="agesData"
-                                        :items="ages"
-                                        label="Выберите возраста"
-                                        multiple
-                                        chips
-                                ></v-combobox>
-                            </v-list-item>
-                            <v-list-item v-else-if="ageSelector === 0">
-                                <v-combobox class="ma-2"
-                                        v-model="ageFrom"
-                                        :items="ages"
-                                        :value="ageFrom"
-                                        label="От"
-                                />
-                                <v-combobox class="ma-2"
-                                        v-model="ageTo"
-                                        :items="ages"
-                                        :value="ageTo"
-                                        label="До"
-                                />
-                            </v-list-item>
-                            <v-list-item>
-                                <v-list-item-action>
-                                    <v-btn @click="loadData" :disabled="(ageSelector === 0 && (ageFrom < 0 || ageTo > maxAge))
+                                <v-row dense>
+                                    <v-col ms="6">
+                                        <v-row no-gutters>
+                                            <v-col cols="12">
+                                                <v-card >
+                                                    <div class="ma-2">
+                                                        <v-subheader>
+                                                            Местоположение
+                                                        </v-subheader>
+                                                        <v-divider/>
+                                                        <v-combobox
+                                                                v-model="currentLocation"
+                                                                :items="locations"
+                                                                item-text="name"
+                                                                item-value="id"
+                                                                label="Страна, субъект, город"
+                                                        />
+                                                    </div>
+                                                </v-card>
+                                            </v-col>
+                                        </v-row >
+                                        <v-row no-gutters>
+                                            <v-col cols="12">
+                                                <v-card>
+                                                    <div class="ma-2">
+                                                        <v-subheader>
+                                                            Тип данных
+                                                        </v-subheader>
+                                                        <v-divider/>
+                                                        <v-chip-group
+                                                                column
+                                                                active-class="primary--text"
+                                                                v-model="dataTypes"
+                                                                multiple
+                                                        >
+                                                            <v-chip value="total">
+                                                                Общий
+                                                            </v-chip>
+                                                            <v-chip value="male">
+                                                                Мужчины
+                                                            </v-chip>
+                                                            <v-chip value="female">
+                                                                Женщины
+                                                            </v-chip>
+                                                            <v-chip value="villager">
+                                                                Сельские
+                                                            </v-chip>
+                                                            <v-chip value="citizen">
+                                                                Городские
+                                                            </v-chip>
+                                                        </v-chip-group >
+                                                    </div>
+                                                </v-card>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row no-gutters >
+                                            <v-col cols="12" >
+                                                <v-card height="100%">
+                                                    <div class="ma-2">
+                                                        <v-subheader>
+                                                            Данные
+                                                        </v-subheader>
+                                                        <v-divider/>
+                                                        <v-chip-group
+                                                                column
+                                                                active-class="primary--text"
+                                                                v-model="yearMode"
+                                                        >
+                                                            <v-chip :disabled="dataTypes.length === 0">
+                                                                Дата рождения
+                                                            </v-chip>
+                                                            <v-chip :disabled="dataTypes.length === 0">
+                                                                Календарный год
+                                                            </v-chip>
+                                                        </v-chip-group >
+                                                    </div>
+                                                </v-card>
+                                            </v-col>
+                                        </v-row>
+                                    </v-col>
+
+                                    <!--COL 2-->
+                                    <v-col ms="6" >
+                                        <v-row>
+                                            <v-col ms="12">
+                                                <v-card height="100%">
+                                                    <div class="ma-2">
+                                                        <v-subheader>Года</v-subheader>
+                                                        <v-divider/>
+
+                                                        <v-combobox
+                                                                :disabled="yearMode == null"
+                                                                v-model="year"
+                                                                :items="dates"
+                                                                label="Выберите год"
+                                                        />
+
+                                                    </div>
+                                                </v-card>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col ms="12">
+                                                <v-card height="100%">
+                                                    <div class="ma-2">
+
+                                                        <v-subheader>
+                                                            Возраст
+                                                        </v-subheader>
+                                                        <v-divider/>
+
+                                                        <v-chip-group
+                                                                column
+                                                                active-class="primary--text"
+                                                                v-model="ageSelector"
+                                                        >
+                                                            <v-chip :disabled="year == null|| yearMode === null">
+                                                                В диапозоне
+                                                            </v-chip>
+                                                            <v-chip :disabled="year == null|| yearMode === null">
+                                                                Определенный возраст
+                                                            </v-chip>
+                                                        </v-chip-group>
+
+                                                        <template v-if="ageSelector === 1">
+                                                            <v-combobox
+                                                                    v-model="agesData"
+                                                                    :items="ages"
+                                                                    label="Выберите возраста"
+                                                                    multiple
+                                                                    chips
+                                                            ></v-combobox>
+                                                        </template>
+                                                        <v-container v-else-if="ageSelector === 0">
+                                                            <v-row>
+                                                                <v-col sm6>
+                                                                    <v-combobox
+                                                                            v-model="ageFrom"
+                                                                            :items="ages"
+                                                                            :value="ageFrom"
+                                                                            label="От"
+                                                                    />
+                                                                </v-col>
+                                                                <v-col sm6>
+                                                                    <v-combobox
+                                                                            v-model="ageTo"
+                                                                            :items="ages"
+                                                                            :value="ageTo"
+                                                                            label="До"
+                                                                    />
+                                                                </v-col>
+                                                            </v-row>
+                                                        </v-container>
+
+                                                    </div>
+                                                </v-card>
+                                            </v-col>
+                                        </v-row>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12" align="center" justify-center>
+                                        <v-btn @click="loadData" :disabled="(ageSelector === 0 && (ageFrom < 0 || ageTo > maxAge))
                                      || (ageSelector === 1 && (agesData.length === 0))
                                       || ageSelector == null" >Показать</v-btn>
-                                </v-list-item-action>
-                            </v-list-item>
-                        </v-list>
+                                    </v-col>
+                                </v-row>
+                            </v-expansion-panel-content>
+                        </v-expansion-panel>
+                    </v-expansion-panels>
+                </v-container>
+            </v-col>
+        </v-row>
+
+
+
+
+        <v-row dense="">
+            <template v-if="dataFromTheServer === null">
+                <v-col cols="12" align="center" justify-center>
+                    <v-card class="pa-2">
+                        {{chartInfo}}
                     </v-card>
                 </v-col>
-                <v-col>
-                    <v-card>
+            </template>
+            <!--<v-col ms="4">
+                <v-card class="pa-2">
+                    <vue-funnel-graph :width="width" :height="height" :labels="labels"
+                                      :values="values" :colors="colors" :sub-labels="subLabels" :direction="direction"
+                                      :gradient-direction="gradientDirection"
+                                      :animated="true" :display-percentage="true"
+                    ></vue-funnel-graph>
+                </v-card>
+            </v-col>
+                <v-col  ms="4">
+                    <v-card class="pa-2">
                         <vue-funnel-graph :width="width" :height="height" :labels="labels"
                                           :values="values" :colors="colors" :sub-labels="subLabels" :direction="direction"
                                           :gradient-direction="gradientDirection"
                                           :animated="true" :display-percentage="true"
                         ></vue-funnel-graph>
                     </v-card>
+                </v-col>-->
+            <template v-else>
+                <template v-if="loadingData == false">
+                    <v-row >
+                    <v-col ms="6" v-for="(value, name, index) in dataFromTheServer" :key="index">
+                        <v-card class="pa-2" >
+                            <line-chart :chart-data="value['byYear']" :width="350" :height="200" :options="chartOptions"></line-chart>
+                        </v-card>
+                    </v-col>
+                    </v-row>
 
 
 
+                </template>
+                <!--<v-col ms="6">
+                    <v-card class="pa-2">
+                        <line-chart :chart-data="datacollection" :width="350" :height="200" :options="chartOptions"></line-chart>
+                    </v-card>
                 </v-col>
-            </v-row>
-        </v-container>
-    </div>
+                <v-col ms="6">
+                    <v-card class="pa-2">
+                        <line-chart :chart-data="datacollection" :width="350" :height="200" :options="chartOptions"></line-chart>
+                    </v-card>
+                </v-col>-->
+
+            </template>
+
+        </v-row>
+
+        <!--
+    <v-col>
+        <v-card>
+
+            <vue-funnel-graph :width="width" :height="height" :labels="labels2"
+                              :values="values2" :colors="colors" :sub-labels="subLabels2" :direction="direction"
+                              :gradient-direction="gradientDirection"
+                              :animated="true" :display-percentage="true"
+            ></vue-funnel-graph>
+        </v-card>
+    </v-col>-->
+
+    </v-container>
 </template>
 
 <script>
@@ -520,11 +606,13 @@
     //import LineChart from 'components/LineChart.js'
     import { VueFunnelGraph } from 'vue-funnel-graph-js'
     import DeathTableApi from "../api/DeathTableApi";
+    import LineChart from "../components/LineChart";
 
     export default {
         name: "StatisticPage",
         components: {
-            VueFunnelGraph
+            VueFunnelGraph,
+            LineChart
         },
         data() {
             return {
@@ -537,11 +625,8 @@
 
                 yearMode: null,
 
-                yearSelector: null,
+                year: null,
 
-                yearFrom: null,
-                yearTo: null,
-                yearsData: [],
 
                 ageSelector: null,
 
@@ -550,10 +635,20 @@
                 agesData:[],
 
                 dates: [],
-                minYear: 0,
                 maxYear: 3000,
+                maxYear: 1900,
                 ages:[],
                 maxAge: 110,
+                minAge: 0,
+
+                expandParametres: 0,
+
+                dataFromTheServer: null,
+                loadingData: false,
+                chartInfo: 'Выберите необходимые параметры и нажмите "Показать"',
+
+
+
 
                 labels: ["1", "2", "3"],
                 subLabels: ['Male', 'Female'],
@@ -567,15 +662,23 @@
                     ['#A0BBFF', '#EC77FF'], // color set for "Add To Cart" segment
                     ['#A0F9FF', '#7795FF']  // color set for "Buy" segment
                 ],
+
+
+
+
                 direction: 'vertical',
                 gradientDirection: 'horizontal',
-                height: 300,
-                width: 800,
+                height: 150,
+                width: 250,
 
                 datacollection: null,
+
+
+
                 loaded: false,
                 chartOptions: {
                     responsive: true,
+                    maintainAspectRatio: true,
                     title: {
                         display: true,
                         text: 'Chart.js Line Chart'
@@ -621,7 +724,7 @@
                 return this.ages
             },
             locationsComputed(){
-              return this.locations
+                return this.locations
             }
         },
         methods: {
@@ -635,9 +738,6 @@
 
                 this.minYear = this.dates[0]
                 this.maxYear = this.dates[this.dates.length-1]
-
-                this.yearFrom = this.minYear
-                this.yearTo = this.maxYear
             },
 
             async fillAges(){
@@ -651,21 +751,22 @@
                 this.ageFrom = 0
                 this.ageTo = this.maxAge
 
-
             },
 
             async fillLocations(){
-              const  result = await deathTableAPI.getAllLocations();
+                const  result = await deathTableAPI.getAllLocations();
 
-              this.locations = result.data
+                this.locations = result.data
 
-              this.currentLocation = this.locations[0]
+                this.currentLocation = this.locations[0]
 
             },
 
             async loadData(){
                 try{
-
+                    this.loadingData = true
+                    this.expandParametres = null
+                    this.chartInfo = 'Загружаем...'
                     const savedThis = this
 
                     let params = {
@@ -679,12 +780,7 @@
                         villagersData: savedThis.dataTypes.includes("villager"),
 
                         yearMode: savedThis.yearMode === 0 ? "birth" : "year",
-
-
-                        yearSelector: savedThis.yearSelector == 0 ? "range" : "array",
-                        yearFrom: savedThis.yearFrom,
-                        yearTo:  savedThis.yearTo,
-                        years: savedThis.yearsData,
+                        year: savedThis.year,
 
                         ageSelector: savedThis.ageSelector === 0 ? "range" : "array",
                         ageFrom: savedThis.ageFrom,
@@ -693,8 +789,56 @@
                     }
 
                     const result = await DeathTableApi.getDeathTable(params)
-                    console.log(result.data)
+                    const data = result.data
+                    this.dataFromTheServer = new Object()
+                    let chartTypeMap
 
+
+                    if (!(data == null | data.length == 0)) {
+                        for (const [datatype, datatypeValue] of Object.entries(data)) {
+                            chartTypeMap = new Object()
+
+                            this.dataFromTheServer[datatype.toString()] = chartTypeMap
+                            //let yearsArr = new Object()
+                            for (const [yearKey, yearsValue] of Object.entries(datatypeValue)) {
+                                let chartdata = {
+                                    labels: [],
+                                    datasets: [
+                                        {
+                                            label: datatype.toString(),
+                                            backgroundColor: '#f87979',
+                                            data: []
+                                        }
+                                    ]
+                                }
+
+                                for (const [ageKey, agesValue] of Object.entries(yearsValue)) {
+                                    console.log('Pushing age = ' + ageKey)
+                                    chartdata.labels.push(ageKey)
+                                    console.log('Age was pushed')
+                                    chartdata.datasets.data.push({
+                                        x: agesValue.numberOfLiving,
+                                        y: ageKey
+                                    })
+                                }
+                                chartTypeMap['byYear'] = chartdata
+
+
+                            }
+                        }
+                    } else {
+                        this.dataFromTheServer = null
+                    }
+                    console.log(this.dataFromTheServer)
+
+
+                    if(this.dataFromTheServer == null) {
+                        this.chartInfo = 'Нет соответствий вашему запросу'
+                    }
+
+
+
+                    this.loadingData = false
 
 
 
@@ -782,5 +926,7 @@
 </script>
 
 <style scoped>
-
+    .v-expansion-panels-my{
+        background-color: rgba(100,100, 100, 0.5);
+    }
 </style>

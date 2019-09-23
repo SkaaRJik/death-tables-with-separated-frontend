@@ -1,3 +1,5 @@
+import axios from "axios";
+
 export const mutations = {
   setUser (state, payload) {
     state.user = payload
@@ -14,11 +16,12 @@ export const mutations = {
   setLoading (state, payload) {
     state.loading = payload
   },
+  setTokens(state, tokens){
+    localStorage.setItem("tokens", tokens)
 
-  setRefreshToken (state, payload) {
-    localStorage.setItem("refresh_token", payload)
   },
-  clearRefreshToken(state) {
-    localStorage.removeItem("refresh_token")
+  clearTokens(state) {
+    localStorage.removeItem("tokens")
   },
+
 }

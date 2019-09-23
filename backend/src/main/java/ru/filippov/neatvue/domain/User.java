@@ -29,11 +29,11 @@ import java.util.stream.Collectors;
 public class User extends BaseEntity {
 
 
-    @Column
+    @Column(unique = true)
     @NotBlank
     private String username;
 
-    @Column
+    @Column(unique = true)
     @NotBlank
     private String email;
 
@@ -67,6 +67,7 @@ public class User extends BaseEntity {
 
     @Column(name = "password_update_date")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
+    @CreatedDate
     private LocalDateTime lastPasswordUpdate;
 
     /*@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
