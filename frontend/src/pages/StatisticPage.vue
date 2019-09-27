@@ -560,9 +560,9 @@
             <template v-else>
                 <template v-if="loadingData == false">
                     <v-row >
-                    <v-col ms="6" v-for="(value, name, index) in dataFromTheServer" :key="index">
+                    <v-col ms="6" v-for="(value, name, index) in dataToShowOnChart" :key="index">
                         <v-card class="pa-2" >
-                            <line-chart :chart-data="value['byYear']" :width="350" :height="200" :options="chartOptions"></line-chart>
+                            <line-chart :chart-data="value" :width="350" :height="200" :options="chartOptions"></line-chart>
                         </v-card>
                     </v-col>
                     </v-row>
@@ -646,6 +646,7 @@
                 dataFromTheServer: null,
                 loadingData: false,
                 chartInfo: 'Выберите необходимые параметры и нажмите "Показать"',
+                dataToShowOnChart:[],
 
 
 
@@ -696,14 +697,14 @@
                             display: true,
                             scaleLabel: {
                                 display: true,
-                                labelString: 'Month'
+                                labelString: 'Возраст'
                             }
                         }],
                         yAxes: [{
                             display: true,
                             scaleLabel: {
                                 display: true,
-                                labelString: 'Value'
+                                labelString: 'Количество'
                             }
                         }]
                     }
@@ -790,7 +791,11 @@
 
                     const result = await DeathTableApi.getDeathTable(params)
                     const data = result.data
+
+                    console.log(data)
+
                     this.dataFromTheServer = new Object()
+                    this.dataToShowOnChart = []
                     let chartTypeMap
 
 
@@ -800,28 +805,30 @@
 
                             this.dataFromTheServer[datatype.toString()] = chartTypeMap
                             //let yearsArr = new Object()
-                            for (const [yearKey, yearsValue] of Object.entries(datatypeValue)) {
+                            for (const [yearKey, yearsValue] of Object.entries(datatypeValue.data)) {
                                 let chartdata = {
                                     labels: [],
-                                    datasets: [
-                                        {
-                                            label: datatype.toString(),
-                                            backgroundColor: '#f87979',
-                                            data: []
-                                        }
-                                    ]
+                                    datasets: []
+                                }
+
+                                let dataset = {
+                                    label: datatypeValue.name,
+                                    backgroundColor: '#f87979',
+                                    data: []
                                 }
 
                                 for (const [ageKey, agesValue] of Object.entries(yearsValue)) {
-                                    console.log('Pushing age = ' + ageKey)
                                     chartdata.labels.push(ageKey)
-                                    console.log('Age was pushed')
-                                    chartdata.datasets.data.push({
-                                        x: agesValue.numberOfLiving,
-                                        y: ageKey
+                                    dataset.data.push({
+                                        x: ageKey,
+                                        y: agesValue.numberOfLiving
                                     })
                                 }
+
+                                chartdata.datasets.push(dataset)
+
                                 chartTypeMap['byYear'] = chartdata
+                                this.dataToShowOnChart.push(chartdata)
 
 
                             }
@@ -829,7 +836,7 @@
                     } else {
                         this.dataFromTheServer = null
                     }
-                    console.log(this.dataFromTheServer)
+
 
 
                     if(this.dataFromTheServer == null) {

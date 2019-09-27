@@ -73,7 +73,8 @@ public class DeathTableService {
     }
 
     public Map packDataToMap(List<DataType> dataTypes, List<DeathNote> deathNotes, List<Short> years, List<Short> targetYears, List<Byte> ages, Mode mode){
-        Map<String, Map<Short, Map<Byte, DeathData>>> data = new HashMap<>(dataTypes.size());
+        Map<String, Object> data = new HashMap<>(dataTypes.size());
+
         Map<Short, Map<Byte, DeathData>> yearsMap;
         Map<Byte, DeathData> agesMap;
         List<Short> tempYears =  mode == Mode.CERTAIN_YEAR ? targetYears : years;
@@ -105,7 +106,10 @@ public class DeathTableService {
             for (int i = 0; i < tempYears.size(); i++) {
                 yearsMap.put(tempYears.get(i), new HashMap<>(ages.size()));
             }
-            data.put(dataType.name(), yearsMap);
+
+            Map<Short, Map<Byte, DeathData>> finalYearsMap = yearsMap;
+            data.put(dataType.name(), new HashMap<>(2){{put("data", finalYearsMap);}});
+
         }
 
         for(DeathNote deathNote : deathNotes) {
@@ -113,54 +117,76 @@ public class DeathTableService {
             for (DataType dataType : dataTypes) {
                 switch (dataType) {
                     case TOTAL:
-                        if(mode == Mode.CERTAIN_YEAR){
-                            yearsMap = data.get(dataType.name());
-                            if(yearsMap.containsKey((short)(deathNote.getBirthYear()+deathNote.getAge()))) {
-                                yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataTotal());
+                        ((Map)data.get(dataType.name())).put("name", "Общий");
+                        if(deathNote.getDeathDataTotal() != null) {
+                            if (mode == Mode.CERTAIN_YEAR) {
+                                yearsMap = (Map<Short, Map<Byte, DeathData>>) ((Map) data.get(dataType.name())).get("data");
+
+                                if (yearsMap.containsKey((short) (deathNote.getBirthYear() + deathNote.getAge()))) {
+                                    yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataTotal());
+                                }
+                            } else {
+                                ((Map<Short, Map<Byte, DeathData>>) data
+                                        .get(dataType.name()))
+                                        .get(deathNote.getBirthYear())
+                                        .put(deathNote.getAge(), deathNote.getDeathDataTotal());
                             }
-                        } else {
-                            data.get(dataType.name()).get(deathNote.getBirthYear()).put(deathNote.getAge(), deathNote.getDeathDataTotal());
                         }
                         break;
                     case MALE:
-                        if(mode == Mode.CERTAIN_YEAR){
-                            yearsMap = data.get(dataType.name());
-                            if(yearsMap.containsKey((short) (deathNote.getBirthYear()+deathNote.getAge()))) {
-                                log.info(deathNote.getBirthYear() + " " + deathNote.getAge());
-                                yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataMale());
+                        ((Map)data.get(dataType.name())).put("name", "Мужичны");
+                        if(deathNote.getDeathDataMale() != null) {
+                            if (mode == Mode.CERTAIN_YEAR) {
+
+                                yearsMap = (Map<Short, Map<Byte, DeathData>>) ((Map) data.get(dataType.name())).get("data");
+                                if (yearsMap.containsKey((short) (deathNote.getBirthYear() + deathNote.getAge()))) {
+                                    yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataMale());
+                                }
+                            } else {
+                                ((Map<Short, Map<Byte, DeathData>>) data.get(dataType.name())).get(deathNote.getBirthYear()).put(deathNote.getAge(), deathNote.getDeathDataMale());
                             }
-                        } else {
-                            data.get(dataType.name()).get(deathNote.getBirthYear()).put(deathNote.getAge(), deathNote.getDeathDataMale());
                         }
                         break;
                     case FEMALE:
-                        if(mode == Mode.CERTAIN_YEAR){
-                            yearsMap = data.get(dataType.name());
-                            if(yearsMap.containsKey((short) (deathNote.getBirthYear()+deathNote.getAge()))) {
-                                yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataFemale());
+                        ((Map)data.get(dataType.name())).put("name", "Женщины");
+                        if(deathNote.getDeathDataFemale() != null) {
+                            if (mode == Mode.CERTAIN_YEAR) {
+                                yearsMap = (Map<Short, Map<Byte, DeathData>>) ((Map) data.get(dataType.name())).get("data");
+                                if (yearsMap.containsKey((short) (deathNote.getBirthYear() + deathNote.getAge()))) {
+                                    yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataFemale());
+                                }
+                            } else {
+                                ((Map<Short, Map<Byte, DeathData>>) data
+                                        .get(dataType.name()))
+                                        .get(deathNote.getBirthYear()).put(deathNote.getAge(), deathNote.getDeathDataFemale());
                             }
-                        } else {
-                            data.get(dataType.name()).get(deathNote.getBirthYear()).put(deathNote.getAge(), deathNote.getDeathDataFemale());
                         }
                         break;
+
                     case VILLAGER:
-                        if(mode == Mode.CERTAIN_YEAR){
-                            yearsMap = data.get(dataType.name());
-                            if(yearsMap.containsKey((short) (deathNote.getBirthYear()+deathNote.getAge()))) {
-                                yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataVillager());
+                        ((Map)data.get(dataType.name())).put("name", "Сельские");
+                        if(deathNote.getDeathDataVillager() != null) {
+                            if (mode == Mode.CERTAIN_YEAR) {
+                                yearsMap = (Map<Short, Map<Byte, DeathData>>) ((Map) data.get(dataType.name())).get("data");
+                                if (yearsMap.containsKey((short) (deathNote.getBirthYear() + deathNote.getAge()))) {
+                                    yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataVillager());
+                                }
+                            } else {
+                                ((Map<Short, Map<Byte, DeathData>>) data.get(dataType.name())).get(deathNote.getBirthYear()).put(deathNote.getAge(), deathNote.getDeathDataVillager());
                             }
-                        } else {
-                            data.get(dataType.name()).get(deathNote.getBirthYear()).put(deathNote.getAge(), deathNote.getDeathDataVillager());
                         }
                         break;
                     case CITY_DWELLER:
-                        if(mode == Mode.CERTAIN_YEAR){
-                            yearsMap = data.get(dataType.name());
-                            if(yearsMap.containsKey( (short) (deathNote.getBirthYear()+deathNote.getAge()))) {
-                                yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataCityDweller());
+                        ((Map)data.get(dataType.name())).put("name", "Городские");
+                        if(deathNote.getDeathDataCityDweller() != null) {
+                            if (mode == Mode.CERTAIN_YEAR) {
+                                yearsMap = (Map<Short, Map<Byte, DeathData>>) ((Map) data.get(dataType.name())).get("data");
+                                if (yearsMap.containsKey((short) (deathNote.getBirthYear() + deathNote.getAge()))) {
+                                    yearsMap.get((short) (deathNote.getBirthYear() + deathNote.getAge())).put(deathNote.getAge(), deathNote.getDeathDataCityDweller());
+                                }
+                            } else {
+                                ((Map<Short, Map<Byte, DeathData>>) data.get(dataType.name())).get(deathNote.getBirthYear()).put(deathNote.getAge(), deathNote.getDeathDataCityDweller());
                             }
-                        } else {
-                            data.get(dataType.name()).get(deathNote.getBirthYear()).put(deathNote.getAge(), deathNote.getDeathDataCityDweller());
                         }
                         break;
                 }

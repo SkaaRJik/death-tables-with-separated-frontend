@@ -43,7 +43,7 @@ public class DeathNote extends BaseEntity {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name="fk_death_data_female_id")
-    protected DeathDataMale deathDataFemale;
+    protected DeathDataFemale deathDataFemale;
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name="fk_death_data_city_dweller_id")
@@ -51,7 +51,7 @@ public class DeathNote extends BaseEntity {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name="fk_death_data_villager_id")
-    protected DeathDataMale deathDataVillager;
+    protected DeathDataVillager deathDataVillager;
 
 
 
